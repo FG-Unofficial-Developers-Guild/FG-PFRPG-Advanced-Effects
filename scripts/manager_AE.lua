@@ -7,7 +7,7 @@
 -- Effects on Items, apply to character in CT
 --
 
--- luacheck: globals CombatManagerKel hasEffectCondition_new notifyApplyDamage TurboManager
+-- luacheck: globals CombatManagerKel hasEffectCondition_new TurboManager checkConditionalHelper_new
 local function sendRawMessage(sUser, nGMOnly, msg)
 	local sIdentity = nil
 	if sUser and sUser ~= '' then
@@ -289,6 +289,56 @@ local function getEffectsByType_new(rActor, sEffectType, aFilter, rFilterActor, 
 	end -- END EFFECT LOOP
 
 	return results
+end
+
+function checkConditionalHelper_new(rActor, sEffect, rTarget, aIgnore)
+	if not rActor then
+		return false
+	end
+
+	local aEffects
+	if TurboManager then
+		aEffects = TurboManager.getMatchedEffects(rActor, sEffect)
+	else
+		aEffects = DB.getChildList(ActorManager.getCTNode(rActor), 'effects')
+	end
+	for _, v in ipairs(aEffects) do
+		if isValidCheckEffect(rActor, v) and not StringManager.contains(aIgnore, DB.getPath(v)) then
+			-- Parse each effect label
+			local sLabel = DB.getValue(v, 'label', '')
+			local aEffectComps = EffectManager.parseEffect(sLabel)
+
+			-- Iterate through each effect component looking for a type match
+			for _, sEffectComp in ipairs(aEffectComps) do
+				local rEffectComp = EffectManager35E.parseEffectComp(sEffectComp)
+
+				--Check conditionals
+				if rEffectComp.type == 'IF' then
+					if not EffectManager35E.checkConditional(rActor, v, rEffectComp.remainder, nil, aIgnore) then
+						break
+					end
+				elseif rEffectComp.type == 'IFT' then
+					if not rTarget then
+						break
+					end
+					if not EffectManager35E.checkConditional(rTarget, v, rEffectComp.remainder, rActor, aIgnore) then
+						break
+					end
+
+				-- Check for match
+				elseif rEffectComp.original:lower() == sEffect then
+					if EffectManager.isTargetedEffect(v) then
+						if EffectManager.isEffectTarget(v, rTarget) then
+							return true
+						end
+					else
+						return true
+					end
+				end
+			end
+		end
+	end
+	return false
 end
 
 -- this will be used to manage PC/NPC effectslist objects
@@ -661,6 +711,7 @@ function onInit()
 		EffectManager35E.getEffectsByType = getEffectsByType_new
 		EffectManager35E.hasEffect = hasEffect_new
 		EffectManager35E.hasEffectCondition = hasEffectCondition_new
+		EffectManager35E.checkConditionalHelper = checkConditionalHelper_new
 		ActionDamage.notifyApplyDamage = notifyApplyDamage
 		ActionDamage.handleApplyDamage = handleApplyDamage
 		OOBManager.registerOOBMsgHandler(ActionDamage.OOB_MSGTYPE_APPLYDMG, handleApplyDamage)
