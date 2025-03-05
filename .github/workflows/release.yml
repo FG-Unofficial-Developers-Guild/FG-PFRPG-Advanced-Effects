@@ -51,7 +51,7 @@ jobs:
       attestations: write 
 
     needs: build
-    if: ${{ vars.FORGE_ITEM_ID != '' }} && ${{ env.UPLOAD != 'false' }}
+    if: ${{ vars.FORGE_ITEM_ID != '' }}
 
     steps:
       - name: Checkout FG-Forge-Updater repository
