@@ -1,6 +1,5 @@
 [![Build FG-Usable File](https://github.com/FG-Unofficial-Developers-Guild/FG-PFRPG-Advanced-Effects/actions/workflows/release.yml/badge.svg)](https://github.com/FG-Unofficial-Developers-Guild/FG-PFRPG-Advanced-Effects/actions/workflows/release.yml)
-[![Stylua](https://github.com/FG-Unofficial-Developers-Guild/FG-PFRPG-Advanced-Effects/actions/workflows/stylua.yml/badge.svg)](https://github.com/FG-Unofficial-Developers-Guild/FG-PFRPG-Advanced-Effects/actions/workflows/stylua.yml)
-[![Luacheck](https://github.com/FG-Unofficial-Developers-Guild/FG-PFRPG-Advanced-Effects/actions/workflows/luacheck.yml/badge.svg)](https://github.com/FG-Unofficial-Developers-Guild/FG-PFRPG-Advanced-Effects/actions/workflows/luacheck.yml)
+[![Lua Code Checks](https://github.com/FG-Unofficial-Developers-Guild/FG-PFRPG-Advanced-Effects/actions/workflows/lua.yml/badge.svg)](https://github.com/FG-Unofficial-Developers-Guild/FG-PFRPG-Advanced-Effects/actions/workflows/lua.yml)
 
 # Advanced Effects
 Original extension by [Celestian](https://www.fantasygrounds.com/forums/member.php?54726-celestian). Ported to PFRPG/3.5E by [rmilmine](https://www.fantasygrounds.com/forums/member.php?215591-rmilmine) and [bmos](https://www.fantasygrounds.com/forums/member.php?194283-bmos).
