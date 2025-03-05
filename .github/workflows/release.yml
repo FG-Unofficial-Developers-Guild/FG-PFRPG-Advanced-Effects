@@ -10,19 +10,17 @@ permissions: read-all
 
 env:
   EXTENSION: ${{ vars.FORGE_EXTENSION }}
-  IS_PRERELEASE: ${{ contains(github.ref_name, '-rc') }} && ${{ contains(github.ref_name, '-test') }}
-  UPLOAD: true # default true
-  README: true # default true
-  GRAPH: true # default false
+  IS_PRERELEASE: ${{ contains(github.ref_name,'-rc') }} && ${{ contains(github.ref_name,'-test') }}
 
 jobs:
   build:
+    name: Create Release
+    runs-on: ubuntu-latest
+
     permissions:
       attestations: write
       contents: write
 
-    name: Create Release
-    runs-on: ubuntu-latest
     steps:
     - name: Checkout Repo Assets
       uses: actions/checkout@v4
@@ -38,6 +36,7 @@ jobs:
       with:
         artifacts: ${{ github.event.repository.name }}${{ env.EXTENSION }}
         prerelease: ${{ env.IS_PRERELEASE != 'false && false' }}
+        allowUpdates: true
         generateReleaseNotes: true
 
     - uses: actions/upload-artifact@v4
@@ -48,12 +47,13 @@ jobs:
   upload:
     name: Upload to Forge
     runs-on: ubuntu-latest
+    
+    needs: build
+    if: ${{ vars.FORGE_ITEM_ID != '' }}
+
     permissions:
       attestations: write
       contents: write
-
-    needs: build
-    if: ${{ vars.FORGE_ITEM_ID != '' }}
 
     steps:
       - name: Checkout FG-Forge-Updater repository
@@ -62,10 +62,10 @@ jobs:
           repository: 'bmos/FG-Forge-Updater'
           ref: 'v1.3'
 
-      - name: Set up Python 3.13
+      - name: Set up python 3.13
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: "3.13"
           cache: 'pip'
 
       - name: Install uv and create venv
@@ -89,9 +89,9 @@ jobs:
           FG_USER_NAME: ${{ vars.FORGE_USER_NAME }}
           FG_USER_PASS: ${{ secrets.FORGE_USER_PASS }}
           FG_UL_FILE: ${{ github.event.repository.name }}${{ env.EXTENSION }}
-          FG_README_UPDATE: ${{ env.README != 'false' }}
-          FG_UPLOAD_BUILD: ${{ env.UPLOAD != 'false' }}
-          FG_GRAPH_SALES: ${{ env.GRAPH == 'true' }}
+          FG_README_UPDATE: "TRUE"
+          FG_UPLOAD_BUILD: "TRUE"
+          FG_GRAPH_SALES: "TRUE"
         run: |
           python -m src.main
 
@@ -104,16 +104,15 @@ jobs:
           FG_USER_NAME: ${{ vars.FORGE_USER_NAME }}
           FG_USER_PASS: ${{ secrets.FORGE_USER_PASS }}
           FG_UL_FILE: ${{ github.event.repository.name }}${{ env.EXTENSION }}
-          FG_README_UPDATE: 'false'
-          FG_UPLOAD_BUILD: ${{ env.UPLOAD != 'false' }}
-          FG_GRAPH_SALES: ${{ env.GRAPH == 'true' }}
+          FG_README_UPDATE: "FALSE"
+          FG_UPLOAD_BUILD: "TRUE"
+          FG_GRAPH_SALES: "TRUE"
         run: |
           python -m src.main
 
       - name: Add cumulative users graph to release
-        id: add-graph-artifact
         uses: ncipollo/release-action@v1
-        if: ${{ env.GRAPH == 'true' }}
         with:
+          body: "![Cumulative Users Graph](https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/cumulative_users.png)"
           artifacts: cumulative_users.png
           allowUpdates: true
