@@ -11,9 +11,9 @@ permissions: read-all
 env:
   EXTENSION: ${{ vars.FORGE_EXTENSION }}
   IS_PRERELEASE: ${{ contains(github.ref_name,"-rc") }} && ${{ contains(github.ref_name,"-test") }}
-  UPLOAD: "true" # default true
-  README: "true" # default true
-  GRAPH: "true" # default false
+  UPLOAD: true # default true
+  README: true # default true
+  GRAPH: true # default false
 
 jobs:
   build:
